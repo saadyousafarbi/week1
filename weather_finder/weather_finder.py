@@ -1,6 +1,9 @@
 import requests
 
+
 API_KEY = '9104e0a25f676b56ac31901d10c5cf0a'
+location = 'London'
+location_url = ('http://api.openweathermap.org/data/2.5/weather?q={}&APPID={}').format(location, API_KEY)
 
 
 def get_weather_info(location):
@@ -9,14 +12,14 @@ def get_weather_info(location):
 
     Arguments:
         location (str): a string that specifies which place to search weather
+
     """
-    location_url = 'http://api.openweathermap.org/data/2.5/weather?q=' + location + '&APPID=' + API_KEY
     weather_raw_data = requests.get(location_url)
     weather_json = weather_raw_data.json()
     if not verify_city(weather_json):
-        return
+        return None
     else:
-        weather_data_output_on_console(weather_data_organizer(weather_json))
+        return get_organized_weather_data(weather_json)
 
 
 def verify_city(json_response):
@@ -25,44 +28,46 @@ def verify_city(json_response):
 
     Arguments:
        json_response (json): contains response of a request from OWM
+
     """
     if json_response['cod'] == '404':
         print('City could not be found, please retry')
         return False
 
-    print('City found')
     return True
 
 
-def weather_data_organizer(weather_raw_data):
+def get_organized_weather_data(raw_weather_data):
     """
     Gets information about the weather of a location and displays it.
 
     Arguments:
-        weather_raw_data (json): a json object containing all data of location
+        raw_weather_data (json): a json object containing all data of location
+
     """
     organized_data = dict(
-        city = weather_raw_data.get('name'),
-        country = weather_raw_data.get('sys').get('country'),
-        temp = weather_raw_data.get('main').get('temp'),
-        temp_max = weather_raw_data.get('main').get('temp_max'),
-        temp_min = weather_raw_data.get('main').get('temp_min'),
-        humidity = weather_raw_data.get('main').get('humidity'),
-        pressure = weather_raw_data.get('main').get('pressure'),
-        sky = weather_raw_data['weather'][0]['main'],
-        wind = weather_raw_data.get('wind').get('speed'),
-        wind_deg = weather_raw_data.get('deg'),
-        cloudiness = weather_raw_data.get('clouds').get('all')
+        city = raw_weather_data.get('name'),
+        country = raw_weather_data.get('sys').get('country'),
+        temp = raw_weather_data.get('main').get('temp'),
+        temp_max = raw_weather_data.get('main').get('temp_max'),
+        temp_min = raw_weather_data.get('main').get('temp_min'),
+        humidity = raw_weather_data.get('main').get('humidity'),
+        pressure = raw_weather_data.get('main').get('pressure'),
+        sky = raw_weather_data['weather'][0]['main'],
+        wind = raw_weather_data.get('wind').get('speed'),
+        wind_deg = raw_weather_data.get('deg'),
+        cloudiness = raw_weather_data.get('clouds').get('all')
     )
     return organized_data
 
 
-def weather_data_output_on_console(weather_data):
+def output_weather_data_on_console(weather_data):
     """
     Prints all the important weather data of the provided place.
 
     Arguments:
         weather_data (dict): a dictionary containing organized data of weather
+
     """
     degree_unit = 'F'
     print('---------------------------------------')
@@ -77,5 +82,4 @@ def weather_data_output_on_console(weather_data):
     print('---------------------------------------')
 
 
-location = 'London'
-get_weather_info(location)
+output_weather_data_on_console(get_weather_info(location))
