@@ -14,7 +14,8 @@ def get_weather_info(location):
         location (str): a string that specifies which place to search weather
 
     """
-    location_url = ('{}?q={}&APPID={}').format(WEATHER_API_BASE_URL, location, API_KEY)
+    location_url = ('{base_url}?q={location}&APPID={app_id}')\
+        .format(base_url=WEATHER_API_BASE_URL, location=location, app_id=API_KEY)
     weather_data = requests.get(location_url).json()
     if not verify_city(weather_data):
         return None
